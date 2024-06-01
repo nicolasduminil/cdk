@@ -1,6 +1,7 @@
 package fr.simplex_software.aws.iac.quarkus.s3.tests;
 
 import fr.simplex_software.aws.iac.quarkus.s3.*;
+import io.quarkus.hibernate.validator.runtime.jaxrs.*;
 import io.quarkus.test.junit.*;
 import jakarta.inject.*;
 import jakarta.json.*;
@@ -45,7 +46,7 @@ public class S3FileManagementIT
     assertThat(response.getStatusInfo().toEnum()).isEqualTo(Response.Status.OK);
     JsonObject jsonObject = Json.createReader(new StringReader(response.readEntity(String.class))).readArray().getJsonObject(0);
     assertThat(jsonObject.getString("objectKey")).isEqualTo("README.md");
-    assertThat(jsonObject.getString("size")).isEqualTo(readme.length());
+    assertThat(jsonObject.getJsonNumber("size").longValue()).isEqualTo(readme.length());
   }
 
   @Test
@@ -55,5 +56,29 @@ public class S3FileManagementIT
     Response response = s3FileManagementTestClient.downloadFile("README.md");
     assertThat(response).isNotNull();
     assertThat(response.getStatusInfo().toEnum()).isEqualTo(Response.Status.OK);
+  }
+
+  @Test
+  @Order(40)
+  public void testUploadFileShouldFail()
+  {
+    Assertions.assertThrows(ResteasyReactiveViolationException.class, () ->
+      s3FileManagementTestClient.uploadFile(new FileMetadata(null, "README.md", MediaType.TEXT_PLAIN)));
+  }
+
+  @Test
+  @Order(40)
+  public void testUploadFileShouldFail2()
+  {
+    Assertions.assertThrows(ResteasyReactiveViolationException.class, () ->
+      s3FileManagementTestClient.uploadFile(new FileMetadata(readme, "AA", MediaType.TEXT_PLAIN)));
+  }
+
+  @Test
+  @Order(40)
+  public void testUploadFileShouldFail3()
+  {
+    Assertions.assertThrows(ResteasyReactiveViolationException.class, () ->
+      s3FileManagementTestClient.uploadFile(new FileMetadata(readme, "README.md", "aa")));
   }
 }

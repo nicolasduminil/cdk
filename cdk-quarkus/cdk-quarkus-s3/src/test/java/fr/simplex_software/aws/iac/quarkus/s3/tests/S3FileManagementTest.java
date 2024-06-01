@@ -1,7 +1,6 @@
 package fr.simplex_software.aws.iac.quarkus.s3.tests;
 
 import io.quarkus.test.junit.*;
-import io.restassured.http.*;
 import io.restassured.http.Header;
 import jakarta.inject.*;
 import jakarta.ws.rs.core.*;

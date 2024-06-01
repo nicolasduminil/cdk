@@ -1,7 +1,9 @@
 package fr.simplex_software.aws.iac.quarkus.s3;
 
 import jakarta.inject.*;
+import jakarta.validation.*;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.config.inject.*;
@@ -24,7 +26,7 @@ public class S3FileManagementApi
   @POST
   @Path("upload")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response uploadFile(/*@Valid*/ FileMetadata fileMetadata) throws Exception
+  public Response uploadFile(@Valid FileMetadata fileMetadata) throws Exception
   {
     PutObjectRequest request = PutObjectRequest.builder()
       .bucket(bucketName)
@@ -38,7 +40,7 @@ public class S3FileManagementApi
   @GET
   @Path("download/{objectKey}")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  public Response downloadFile(String objectKey)
+  public Response downloadFile(@PathParam("objectKey")String objectKey)
   {
     GetObjectRequest request = GetObjectRequest.builder()
       .bucket(bucketName)

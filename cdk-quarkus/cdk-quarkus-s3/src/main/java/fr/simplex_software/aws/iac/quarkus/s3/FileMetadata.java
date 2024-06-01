@@ -1,5 +1,6 @@
 package fr.simplex_software.aws.iac.quarkus.s3;
 
+import jakarta.validation.constraints.*;
 import jakarta.ws.rs.core.*;
 import org.jboss.resteasy.reactive.*;
 
@@ -8,18 +9,19 @@ import java.io.*;
 public class FileMetadata
 {
   @RestForm
+  @NotNull
   public File file;
 
   @RestForm
   @PartType(MediaType.TEXT_PLAIN)
-  /*@NotEmpty
-  @Size(min = 3, max = 40)*/
+  @NotEmpty
+  @Size(min = 3, max = 40)
   public String filename;
 
   @RestForm
   @PartType(MediaType.TEXT_PLAIN)
-  /*@NotEmpty
-  @Size(min = 10, max = 127)*/
+  @NotEmpty
+  @Size(min = 10, max = 127)
   public String mimetype;
 
   public FileMetadata()
