@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.rest.client.inject.*;
 
 @Path("s3")
-@RegisterRestClient(configKey = "base_uri")
+@RegisterRestClient/*(configKey = "base_uri")*/
 public interface S3FileManagementTestClient
 {
   @POST
