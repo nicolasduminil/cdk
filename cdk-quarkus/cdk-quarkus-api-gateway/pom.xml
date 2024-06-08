@@ -27,8 +27,16 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <configuration>
-          <mainClass>fr.simplex_software.aws.iac.quarkus.api_gateway.CdkApiGatewayApp</mainClass>
+          <mainClass>fr.simplex_software.aws.iac.quarkus.api_gateway.CdkApiGatewayMain</mainClass>
+          <arguments>
+            <argument>-jar</argument>
+            <argument>target/quarkus-app/quarkus-run.jar</argument>
+          </arguments>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

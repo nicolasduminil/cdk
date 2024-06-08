@@ -15,4 +15,7 @@ It is a [Maven](https://maven.apache.org/) based project, so you can open this p
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
 
+
+    ./destroy.sh cdk-quarkus/cdk-quarkus-api-gateway ../cdk-quarkus-s3
+
 Enjoy!

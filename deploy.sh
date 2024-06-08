@@ -10,4 +10,4 @@ mvn -DskipITs -Dfr.simplex_software.aws.iac.quarkus.s3.tests.S3FileManagementTes
 pushd $CDK_MODULE_NAME && cdk deploy --all --context zip=$API_MODULE_NAME/target/function.zip --require-approval=never
 API_ENDPOINT=$(aws cloudformation describe-stacks --stack-name QuarkusApiGatewayStack --query 'Stacks[0].Outputs[0].OutputValue' --output text)
 popd
-mvn -Dquarkus.http.test-host=$API_ENDPOINT failsafe:integration-test
+mvn -Dfr.simplex_software.aws.iac.quarkus.s3.tests.S3FileManagementTestClient/mp-rest/url=$API_ENDPOINT failsafe:integration-test
