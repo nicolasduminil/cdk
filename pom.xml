@@ -11,6 +11,7 @@
     <module>cdk-starter</module>
     <module>cdk-quarkus</module>
     <module>cdk-simple-construct</module>
+    <module>cdk-quarkus/cdk-quarkus-api-gateway-test</module>
   </modules>
   <properties>
     <maven.compiler.source>21</maven.compiler.source>

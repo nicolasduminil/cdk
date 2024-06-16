@@ -1,5 +1,5 @@
 {
-  "app": "mvn -e -q compile exec:java",
+  "app": "java -jar target/quarkus-app/quarkus-run.jar",
   "watch": {
     "include": [
       "**"

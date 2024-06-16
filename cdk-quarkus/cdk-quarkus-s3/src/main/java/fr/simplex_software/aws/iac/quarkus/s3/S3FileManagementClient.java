@@ -1,15 +1,14 @@
-package fr.simplex_software.aws.iac.quarkus.s3.tests;
+package fr.simplex_software.aws.iac.quarkus.s3;
 
-import fr.simplex_software.aws.iac.quarkus.s3.*;
 import jakarta.validation.*;
-import jakarta.ws.rs.*;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.rest.client.inject.*;
 
 @Path("s3")
-@RegisterRestClient/*(configKey = "base_uri")*/
-public interface S3FileManagementTestClient
+@RegisterRestClient(configKey = "base_uri")
+public interface S3FileManagementClient
 {
   @POST
   @Path("upload")

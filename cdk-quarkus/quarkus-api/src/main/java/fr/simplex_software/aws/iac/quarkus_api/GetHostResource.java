@@ -14,7 +14,6 @@ public class GetHostResource
   private static final String FMT = "*** My IP address is %s";
 
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
   public String host() throws IOException
   {
     return String.format(FMT, InetAddress.getLocalHost().getHostAddress());

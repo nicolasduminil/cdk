@@ -8,21 +8,8 @@
     <artifactId>cdk-quarkus</artifactId>
     <version>0.1</version>
   </parent>
-  <artifactId>quarkus-api</artifactId>
-  <name>CDK Quarkus :: the Quarkus Simple API module</name>
+  <artifactId>cdk-quarkus-api-gateway-test</artifactId>
   <dependencies>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-arc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-amazon-lambda-http</artifactId>
-    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
@@ -33,9 +20,24 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>fr.simplex-software.aws.iac</groupId>
+      <artifactId>cdk-quarkus-s3</artifactId>
+      <scope>test</scope>
+      <version>0.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-amazon-lambda-http</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-rest-jackson</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>io.quarkus.platform</groupId>
@@ -45,9 +47,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <classpathDependencyExcludes>
-            <classpathDependencyExclude>io.quarkus:quarkus-amazon-lambda-http</classpathDependencyExclude>
-          </classpathDependencyExcludes>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>

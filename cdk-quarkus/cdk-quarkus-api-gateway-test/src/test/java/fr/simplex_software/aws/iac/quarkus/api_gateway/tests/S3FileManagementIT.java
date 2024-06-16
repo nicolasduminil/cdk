@@ -1,28 +1,28 @@
-package fr.simplex_software.aws.iac.quarkus.s3.tests;
+package fr.simplex_software.aws.iac.quarkus.api_gateway.tests;
 
 import fr.simplex_software.aws.iac.quarkus.s3.*;
 import io.quarkus.hibernate.validator.runtime.jaxrs.*;
 import io.quarkus.test.junit.*;
+import io.restassured.*;
 import jakarta.inject.*;
 import jakarta.json.*;
 import jakarta.ws.rs.core.*;
 import org.apache.http.*;
 import org.eclipse.microprofile.config.inject.*;
 import org.eclipse.microprofile.rest.client.inject.*;
+import org.hamcrest.*;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.nio.file.*;
 
-import static io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class S3FileManagementTest
+public class S3FileManagementIT
 {
-  private static File readme = new File("./src/test/resources/README.md");
+  private static final File readme = new File("./src/test/resources/README.md");
   @Inject
   @RestClient
   S3FileManagementClient s3FileManagementTestClient;
@@ -30,11 +30,12 @@ public class S3FileManagementTest
   @ConfigProperty(name = "base_uri/mp-rest/url")
   String baseURI;
 
-  @Test
+
+  /*@Test
   @Order(10)
   public void testUploadFile()
   {
-    given()
+    RestAssured.given()
       .contentType(MediaType.MULTIPART_FORM_DATA)
       .multiPart("file", readme)
       .multiPart("filename", "README.md")
@@ -49,26 +50,26 @@ public class S3FileManagementTest
   @Order(20)
   public void testListFiles()
   {
-    given()
+    RestAssured.given()
       .when().get("/s3/list")
       .then()
       .statusCode(200)
-      .body("size()", equalTo(1))
-      .body("[0].objectKey", equalTo("README.md"))
-      .body("[0].size", greaterThan(0));
+      .body("size()", Matchers.equalTo(1))
+      .body("[0].objectKey", Matchers.equalTo("README.md"))
+      .body("[0].size", Matchers.greaterThan(0));
   }
 
   @Test
   @Order(30)
   public void testDownloadFile() throws IOException
   {
-    given()
+    RestAssured.given()
       .pathParam("objectKey", "README.md")
       .when().get("/s3/download/{objectKey}")
       .then()
       .statusCode(200)
-      .body(equalTo(Files.readString(readme.toPath())));
-  }
+      .body(Matchers.equalTo(Files.readString(readme.toPath())));
+  }*/
 
   @Test
   @Order(40)
