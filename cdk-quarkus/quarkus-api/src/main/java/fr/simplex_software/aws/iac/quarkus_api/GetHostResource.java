@@ -2,10 +2,11 @@ package fr.simplex_software.aws.iac.quarkus_api;
 
 import jakarta.enterprise.context.*;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
 
 import java.io.*;
 import java.net.*;
+
+import static java.lang.System.Logger.Level.*;
 
 @Path("host")
 @ApplicationScoped
@@ -16,6 +17,7 @@ public class GetHostResource
   @GET
   public String host() throws IOException
   {
+    System.out.println("### host()");
     return String.format(FMT, InetAddress.getLocalHost().getHostAddress());
   }
 }

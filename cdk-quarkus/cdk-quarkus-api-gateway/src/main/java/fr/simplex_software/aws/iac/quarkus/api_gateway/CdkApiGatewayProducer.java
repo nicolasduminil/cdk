@@ -19,6 +19,7 @@ public class CdkApiGatewayProducer
   @Singleton
   public StackProps stackProps()
   {
-    return StackProps.builder().build();
+    return StackProps.builder().env(Environment.builder().account(System.getenv("CDK_DEFAULT_ACCOUNT"))
+      .region(System.getenv("CDK_DEFAULT_REGION")).build()).build();
   }
 }

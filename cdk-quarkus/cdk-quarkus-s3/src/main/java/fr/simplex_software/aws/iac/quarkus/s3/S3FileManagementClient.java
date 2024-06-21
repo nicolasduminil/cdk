@@ -22,4 +22,8 @@ public interface S3FileManagementClient
   @Path("list")
   @Produces(MediaType.APPLICATION_JSON)
   public Response listFiles();
+  @GET
+  @Path("time")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String currentTime();
 }
