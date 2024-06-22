@@ -60,7 +60,7 @@ public class S3FileManagementApi
       .key(fileMetadata.filename)
       .contentType(fileMetadata.mimetype)
       .build();
-    //s3.putObject(request, RequestBody.fromFile(fileMetadata.file));
+    s3.putObject(request, RequestBody.fromFile(fileMetadata.file));
     return Response.ok().status(Response.Status.CREATED).build();
   }
 
