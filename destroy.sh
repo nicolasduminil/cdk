@@ -6,4 +6,5 @@ then
 fi
 pushd $1 && cdk destroy --context zip=~/cdk/$2/target/function.zip
 popd
+aws s3 rm s3://my-bucket-8701 --recursive
 aws s3 rb s3://my-bucket-8701

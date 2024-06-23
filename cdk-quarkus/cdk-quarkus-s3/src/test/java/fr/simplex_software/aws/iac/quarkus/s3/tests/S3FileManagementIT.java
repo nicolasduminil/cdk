@@ -45,7 +45,7 @@ public class S3FileManagementIT
     assertThat(response.getStatusInfo().toEnum()).isEqualTo(Response.Status.CREATED);
   }
 
-  /*@Test
+  @Test
   @Order(50)
   public void testListFiles()
   {
@@ -88,5 +88,5 @@ public class S3FileManagementIT
   {
     Assertions.assertThrows(ResteasyReactiveViolationException.class, () ->
       s3FileManagementTestClient.uploadFile(new FileMetadata(readme, "README.md", "aa")));
-  }*/
+  }
 }
