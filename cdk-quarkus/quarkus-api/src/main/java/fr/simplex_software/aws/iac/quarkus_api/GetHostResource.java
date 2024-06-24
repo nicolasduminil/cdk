@@ -17,7 +17,6 @@ public class GetHostResource
   @GET
   public String host() throws IOException
   {
-    System.out.println("### host()");
     return String.format(FMT, InetAddress.getLocalHost().getHostAddress());
   }
 }

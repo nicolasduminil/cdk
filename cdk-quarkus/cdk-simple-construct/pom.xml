@@ -5,15 +5,19 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>fr.simplex-software.aws.iac</groupId>
-    <artifactId>cdk</artifactId>
+    <artifactId>cdk-quarkus</artifactId>
     <version>0.1</version>
   </parent>
   <artifactId>cdk-simple-construct</artifactId>
-  <name>CDK :: the simple construct module</name>
+  <name>CDK Quarkus :: the simple construct module</name>
   <dependencies>
     <dependency>
       <groupId>software.amazon.awscdk</groupId>
       <artifactId>aws-cdk-lib</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -31,5 +35,11 @@
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>io.smallrye</groupId>
+        <artifactId>jandex-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 </project>

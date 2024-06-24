@@ -1,10 +1,8 @@
 package fr.simplex_software.aws.iac.quarkus_api.tests;
 
 import io.quarkus.test.junit.*;
-import io.restassured.*;
 import io.restassured.response.*;
 import jakarta.inject.*;
-//import jakarta.ws.rs.core.*;
 import org.apache.http.*;
 import org.eclipse.microprofile.config.inject.*;
 import org.junit.jupiter.api.*;

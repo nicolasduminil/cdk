@@ -19,6 +19,11 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>
+    <dependency>
+      <groupId>fr.simplex-software.aws.iac</groupId>
+      <artifactId>cdk-simple-construct</artifactId>
+      <version>0.1</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
