@@ -1,8 +1,6 @@
 package fr.simplex_software.aws.iac.simple_construct.config;
 
 import io.smallrye.config.*;
-import software.amazon.awscdk.services.lambda.*;
-import software.amazon.awscdk.services.s3.*;
 
 @ConfigMapping(prefix = "lambda.with.bucket.construct.config")
 public interface LambdaWithBucketConstructConfig

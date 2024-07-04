@@ -26,9 +26,17 @@ public class GetHostResourceIT
   @Test
   public void testGetHost()
   {
-    Response response = given().when().get("/host");
+    Response response = given().when().get("/s3");
     assertThat(response.statusCode()).isEqualTo(HttpStatus.SC_OK);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.prettyPrint()).contains("*** My IP address is");
+  }
+
+  @Test
+  public void testTemplate()
+  {
+    Response response = given().when().get("/s3/info/my-bucket-8701");
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.SC_OK);
+    assertThat(response.getBody()).isNotNull();
   }
 }

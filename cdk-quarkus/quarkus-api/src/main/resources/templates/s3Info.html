@@ -1,0 +1,51 @@
+{@fr.simplex_software.aws.iac.quarkus_api.S3BucketInfo s3BucketInfo}
+{#include body.html}
+{#title}S3 Bucket Info{/title}
+{#contents}
+<div class="container mt-2">
+  <table class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col" class="fit">Bucket name</th>
+        <th scope="col" class="fit">ARN</th>
+        <th scope="col" class="fit">Region</th>
+        <th scope="col" class="fit">Creation date</th>
+        <th scope="col" class="fit">Versioning</th>
+      </tr>
+    </thead>
+    <tr>
+      <td>{bucketName}</td>
+      <td>{arn}</td>
+      <td>{awsRegionName}</td>
+      <td>{creationDate}</td>
+      {#if versioning}
+        <td>Enable</td>
+      {#else}
+        <td>Disable</td>
+      {/if}
+    </tr>
+  </table>
+</div>
+<div class="container mt-2">
+  {#if tags.size == 0}
+    <td colspan="6">No data found.</td>
+  {#else}
+    <table class="table table-striped">
+      <thead class="thead-light">
+      <tr>
+        <th scope="col" class="fit">Tags</th>
+      </tr>
+      </thead>
+      {#for tag in tags}
+        <tr>
+          <td>{tag}</td>
+          {#if tag_hasNext}
+            <hr class="double">
+          {/if}
+        </tr>
+      {/for}
+    </table>
+  {/if}
+</div>
+{/contents}
+{/include}
