@@ -576,3 +576,44 @@ looking like that:
 
 Your test is successful and you know now how to use CDK constructs to create infrastructure standalone modules and to 
 assemble them into AWS CloudFormation stacks. But there is more, so stay tuned !
+
+## Managing infrastructure with Quarkus
+
+At the end of the 1st Part of this CDK post collection, we promissed to demonstrate how to programatically manage the S3
+bucket created as an elememnt of our stack. We did it using AWS CLI, let's see now how to do it in Java. The project 
+`cdk-quarkus-s3`, in the same GIT repository, will be used to illustrate, on the purpose, a couple of advanced Quarkus
+to AWS integration features, together with several tricks specific to RESTeasy which is, as everyone knows, the RedHat 
+implementation of Jakarta REST specifications.
+
+Let's start by looking in the project's `pom.xml` file which drives the Maven build process. You'll see the following
+dependency:
+
+      ...
+      <dependency>
+        <groupId>io.quarkiverse.amazonservices</groupId>
+        <artifactId>quarkus-amazon-s3</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-amazon-lambda-http</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-rest-jackson</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-rest-client</artifactId>
+      </dependency>
+      ...
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>netty-nio-client</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>url-connection-client</artifactId>
+      </dependency>
+      ...
+
+The first dependency in the listing above, `quarkus-amazon-s3` is a Quarkus extension allowing to 
