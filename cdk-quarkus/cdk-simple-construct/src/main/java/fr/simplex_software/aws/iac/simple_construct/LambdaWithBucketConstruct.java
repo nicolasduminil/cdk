@@ -2,6 +2,8 @@ package fr.simplex_software.aws.iac.simple_construct;
 
 import fr.simplex_software.aws.iac.simple_construct.config.*;
 import software.amazon.awscdk.*;
+import software.amazon.awscdk.aws_apigatewayv2_integrations.*;
+import software.amazon.awscdk.services.apigatewayv2.*;
 import software.amazon.awscdk.services.iam.*;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.*;
@@ -11,6 +13,7 @@ import software.constructs.*;
 public class LambdaWithBucketConstruct extends Construct
 {
   private FunctionUrl functionUrl;
+  private String httpApiGatewayUrl;
 
   public LambdaWithBucketConstruct(final Construct scope, final String id, LambdaWithBucketConstructConfig config)
   {
@@ -30,10 +33,19 @@ public class LambdaWithBucketConstruct extends Construct
       .build();
     functionUrl = function.addFunctionUrl(FunctionUrlOptions.builder().authType(FunctionUrlAuthType.NONE).build());
     new Bucket(this, config.bucketProps().bucketId(), BucketProps.builder().bucketName(config.bucketProps().bucketName()).build());
+    HttpApi httpApi = HttpApi.Builder.create(this, "HttpApiGatewayIntegration")
+      .defaultIntegration(HttpLambdaIntegration.Builder.create("HttpApiGatewayIntegration", function).build()).build();
+    httpApiGatewayUrl = httpApi.getUrl();
+    CfnOutput.Builder.create(this, "HttpApiGatewayUrlOutput").value(httpApi.getUrl()).build();
   }
 
   public String getFunctionUrl()
   {
     return functionUrl.getUrl();
+  }
+
+  public String getHttpApiGatewayUrl()
+  {
+    return httpApiGatewayUrl;
   }
 }

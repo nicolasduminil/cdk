@@ -608,12 +608,199 @@ dependency:
       ...
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
-        <artifactId>netty-nio-client</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
         <artifactId>url-connection-client</artifactId>
       </dependency>
       ...
 
-The first dependency in the listing above, `quarkus-amazon-s3` is a Quarkus extension allowing to 
+The first dependency in the listing above, `quarkus-amazon-s3` is a Quarkus extension allowing your code to act as an AWS
+S3 client and to store and delete objects in buckets or implement backup and recovery strategies, archive data, etc.
+
+The next dependency, `quarkus-amazon-lambda-http`, is another Quarkus extension which aims at supporting the [AWS HTTP 
+Gateway API](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html). As the reader already knows from
+the two previous parts of this series, with Quarkus, one can deploy a REST API as AWS Lambda using either AWS HTTP Gateway
+API or [AWS REST Gateway API](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-rest-api.html). Here
+we'll be using the former one, less expansive, hence the mentioned extension. If we wanted to use the AWS REST Gateway API,
+then we would have had to replace the `quarkus-amazon-lambda-http` extension by the `quarkus-amazon-lambda-rest` one.
+
+In this project we'll be using Quarkus 3.11 which, at the time of this writing, is the most recent release. Some of the 
+RESTeasy dependencies have changed, compared with former versions, hence the dependency `quarkus-rest-jackson` which 
+replaces now the `quarkus-resteasy` one, used in 3.10 and before. Also, the `quarkus-rest-client` extension, implementing
+the Eclipse MP REST Client specifications, is needed for test purposes, as we will se in a moment. Last but not least, the `url-connection-client` Quarkus extension is needed because the MP REST Client implementation uses
+it by default. 
+
+Now, let's look at our new REST API. Open the Java class `S3FileManagementAPI` in the `cdk-quarkus-s3` project and you'll
+see that it defines three operations: download file, upload file and list files. All three use the same S3 bucket created 
+as a part of the CDK application's stack.
+
+    @Path("/s3")
+    public class S3FileManagementApi
+    {
+      @Inject
+      S3Client s3;
+      @ConfigProperty(name = "bucket.name")
+      String bucketName;
+
+      @POST
+      @Path("upload")
+      @Consumes(MediaType.MULTIPART_FORM_DATA)
+      public Response uploadFile(@Valid FileMetadata fileMetadata) throws Exception
+      {
+        PutObjectRequest request = PutObjectRequest.builder()
+          .bucket(bucketName)
+          .key(fileMetadata.filename)
+          .contentType(fileMetadata.mimetype)
+          .build();
+        s3.putObject(request, RequestBody.fromFile(fileMetadata.file));
+        return Response.ok().status(Response.Status.CREATED).build();
+      }
+      ...
+    }
+
+The code fragment above reproduces only the upload file operation, the other two being very similar. Observe how simple
+the instantiation of the `S3Client` is by taking advantage of the Quarkus CDI which avoids the need of several boilerplate
+lines of code. Also, we're using the Eclipse MP Config specification to define the name of the destination S3 bucket.
+
+Our endpoint `uploadFile()` accepts POST requests and it consumes `MULTIPART_FORM_DATA` MIME data structured in two 
+distinct parts, one for the payload and the other one containing the file to be uploaded. The endpoint takes an input 
+parameter of class `FileMetadata`, shown below:
+
+    public class FileMetadata
+    {
+      @RestForm
+      @NotNull
+      public File file;
+
+      @RestForm
+      @PartType(MediaType.TEXT_PLAIN)
+      @NotEmpty
+      @Size(min = 3, max = 40)
+      public String filename;
+
+      @RestForm
+      @PartType(MediaType.TEXT_PLAIN)
+      @NotEmpty
+      @Size(min = 10, max = 127)
+      public String mimetype;
+      ...
+    }
+
+This class is a data object grouping the file to be uploaded together with its name and MIME type. It uses the `@RestForm`
+RESTeasy specific annotation to handle HTTP requests that have `multipart/form-data` as their content type. The use of 
+`jakarta.validation.constraints` annotations are very practical as well for validation purposes.
+
+To come back at our endpoint above, it creates a `PutObjectRequest` having as input arguments the destination bucket name, 
+a key that uniquely identifies the stored file in the bucket,in this case the file name, and the associated MIME type, 
+for example `TEXT_PLAIN` for a text file. Once the `PutObjectRequest` created it is sent via an HTTP PUT request to the 
+AWS S3 service. Please notice how easy the file to be uploaded is inserted into the request body using the 
+`RequestBody.fromFile(...)` statement.
+
+That's all as far as the REST API exposed as an AWS Lambda function is concerned. Now let's look at what's new in our CDK
+application's stack:
+
+    ...
+    HttpApi httpApi = HttpApi.Builder.create(this, "HttpApiGatewayIntegration")
+      .defaultIntegration(HttpLambdaIntegration.Builder.create("HttpApiGatewayIntegration", function).build()).build();
+    httpApiGatewayUrl = httpApi.getUrl();
+    CfnOutput.Builder.create(this, "HttpApiGatewayUrlOutput").value(httpApi.getUrl()).build();
+    ...
+
+These lines have been added to the `LambdaWithBucketConstruct` class in the `cdk-simple-construct` project. We want that 
+the Lambda function we're creating in the current stack be located behind an HTTP Gateway and backups it. This might have
+some advantages. So we need to creat an *integration* for our Lambda function.
+
+The notion of *integration*, as defined by AWS, means providing a backend for an API endpoint. In the case of the HTTP 
+Gateway, one or more this backends should be provided for each API Gateway's endpoints. The integrations have their own 
+request and response, distinct from the ones of the API itself. There are two integration types:
+
+  - lambda integrations where the backend is a Lambda function;
+  - HTTP integrations where the backend might be any deployed web application;
+
+In our example, we're using Lambda integration, of course. There are two types of Lambda integartions as well:
+
+  - Lambda proxy integration where the definition of the integration's request and response, as well as their mapping to/from the original ones isn't required as it automatically provided;
+  - Lambda non-proxy integration where we need to specify how the incoming request data is mapped to the integration request and how the resulting integration response data is mapped to the method response;
+
+For simplicity sake, we're using the 1st case in our project. This is what the statement `.defaultIntegration(...)` above 
+is doing. Once the integration created, we need to display the URL of the newly created API Gateway, which our Lambda function
+is the backup. This way, in addition of being able t directly invoke our Lambda function, as we did previously, we'll be 
+able to do it through the API Gateway. And in a project with several dozens of REST endpoints, it's very important to have
+a single contact point, where to apply security policies, logging, journalisation and other cross cutting concerns. And 
+the API Gateway id ideal as a single contact point.
+
+The project comes with a couple of unit and integration tests. For example, the class `S3FileManagementTest` perform
+unit testing using REST Assured, as shown below:
+
+    @QuarkusTest
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    public class S3FileManagementTest
+    {
+      private static File readme = new File("./src/test/resources/README.md");
+
+      @Test
+      @Order(10)
+      public void testUploadFile()
+      {
+        given()
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .multiPart("file", readme)
+          .multiPart("filename", "README.md")
+          .multiPart("mimetype", MediaType.TEXT_PLAIN)
+          .when()
+          .post("/s3/upload")
+          .then()
+          .statusCode(HttpStatus.SC_CREATED);
+        }
+
+        @Test
+        @Order(20)
+        public void testListFiles()
+        {
+          given()
+            .when().get("/s3/list")
+            .then()
+            .statusCode(200)
+            .body("size()", equalTo(1))
+            .body("[0].objectKey", equalTo("README.md"))
+            .body("[0].size", greaterThan(0));
+        }
+
+        @Test
+        @Order(30)
+        public void testDownloadFile() throws IOException
+        {
+          given()
+            .pathParam("objectKey", "README.md")
+            .when().get("/s3/download/{objectKey}")
+            .then()
+            .statusCode(200)
+            .body(equalTo(Files.readString(readme.toPath())));
+        }
+    }
+
+This unit test starts by uploading the file `README.md` to the S3 bucket defined on the purpose. Then it lists all the 
+files present in the bucket and finishes by downloading the file just uploaded. Please notice the following lines in the 
+`application.properties` file:
+
+    bucket.name=my-bucket-8701
+    %test.quarkus.s3.devservices.buckets=${bucket.name}
+
+The first one defines the names of the destination bucket and the second one automatically creates it. This only works
+while executed via the Quarkus Mock server. While this unit test is executed in the Maven test phase, against a 
+`localstack`instance run by `testcontainers`, automatically managed by Quarkus, the integration one, `S3FileManagementIT`,
+is executed against the real AWS infrastructure, once our CDK application is deployed. For this purposes you need to execute
+the `deploy.sh` script, as follows:
+
+    $ cd cdk
+    $ ./deploy.sh cdk-quarkus/cdk-quarkus-api-gateway cdk-quarkus/cdk-quarkus-s3
+
+This will compile and build the application, execute the unit tests, deploy the CloudFormation stack on AWS and execute
+the integration tests against this infrastructure. At the end of the execution, you should see something like:
+
+    Outputs:
+    QuarkusApiGatewayStack.FunctionURLOutput = https://<generated>.lambda-url.eu-west-3.on.aws/
+    QuarkusApiGatewayStack.LambdaWithBucketConstructIdHttpApiGatewayUrlOutput38281695 = https://<generated>.execute-api.eu-west-3.amazonaws.com/
+    Stack ARN:
+    arn:aws:cloudformation:eu-west-3:495913029085:stack/QuarkusApiGatewayStack/0d0832a0-3c86-11ef-8867-0a1aa85677e1
+
+Here, in addition to the Lambda function URL that you've already seen in our previous examples, you can see now the API 
+HTTP Gateway URL, that you can use now for testing purposes, instead of the Lambda one.

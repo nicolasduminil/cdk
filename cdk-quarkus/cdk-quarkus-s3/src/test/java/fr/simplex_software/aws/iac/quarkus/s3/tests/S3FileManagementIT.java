@@ -27,15 +27,6 @@ public class S3FileManagementIT
   @ConfigProperty(name = "base_uri/mp-rest/url")
   String baseURI;
 
-  /*@Test
-  @Order(10)
-  public void testGetCurrentTime()
-  {
-    String time = s3FileManagementTestClient.currentTime();
-    assertThat(time).isNotNull();
-    assertThat(time).isNotEmpty();
-  }*/
-
   @Test
   @Order(40)
   public void testUploadFile() throws Exception
